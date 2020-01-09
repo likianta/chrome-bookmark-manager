@@ -2,12 +2,12 @@
 对 json 格式的书签的处理.
 
 步骤:
-    1. 找到该文件: "C:/Users/Likianta/AppData/Local/Google/Chrome/User Data
+    1. 找到该文件: "C:/Users/<User>/AppData/Local/Google/Chrome/User Data
        /<User Profile>/Bookmarks", 这里的 <User Profile> 是你的用户名, 比如
        "Guest Profile", "Profile 1" 等.
-    2. 复制该文件到本项目的 data 目录下, 并重命名为 "Bookmarks.json"
+    2. 复制该文件到本项目的 data 目录下, 并重命名为 "bookmarks.json"
     3. 运行本程序
-    4. 生成文件: "output/Bookmarks.json"
+    4. 生成文件: "output/bookmarks.json"
     5. 将文件重命名为 "Bookmarks", 粘贴回原位置并覆盖 (请预先将被覆盖的文件备份)
     6. 重新启动浏览器
     
@@ -21,12 +21,13 @@ import re
 from lk_utils.toolbox import *
 
 
-# from lk_utils.name_formatter import prettify_name
-# from lk_utils.regex_helper import word_pattern
-
-
 def main(ifile, ofile):
-    # ifile = filesniff.prettify_file(ifile)
+    """
+    IN: data/bookmarks.json
+            ifile copied from: "C:/Users/Likianta/AppData/Local/CentBrowser
+            /User Data/Default/Bookmarks"
+    OT: output/bookmarks.json
+    """
     bookmarks = read_and_write.loads(ifile)
     """
     structure:
@@ -72,6 +73,7 @@ def main(ifile, ofile):
     """
     walk(bookmarks['roots']['bookmark_bar'])
     read_and_write.dumps(bookmarks, ofile)
+    return bookmarks
 
 
 def export_excel(bookmarks: dict, ofile):
@@ -119,37 +121,34 @@ def process_url(node: dict):
 
 
 reg1 = re.compile(r'[- ,.:?\w]+')
-reg2 = re.compile(r'\s+')
-reg3 = re.compile(r'[,.:?\d\u4e00-\u9fa5]+|[- ,.:?a-z0-9]+')
+reg2 = re.compile(r'[,.:?\d\u4e00-\u9fa5]+|[- ,.:?a-z0-9]+')
+reg3 = re.compile(r'\s+')
 cn_to_en = {
-    '，' : ', ', '。' : '. ', '、': ', ',
-    '“' : '"', '”' : '"', '‘' : '\'', '’' : '\'',
-    '：' : ': ', '；' : '; ',
-    '·' : ' ', '~' : '~',
-    '？' : '? ', '！' : '! ',
-    '（' : ' (', '）' : ') ',
-    '【' : '[', '】' : ']',
-    '《' : '"', '》' : '"',
+    '，' : ', ', '。': '. ', '、': ', ',
+    '“' : '"', '”': '"', '‘': '\'', '’': '\'',
+    '：' : ': ', '；': '; ',
+    '·' : ' ', '~': '~',
+    '？' : '? ', '！': '! ',
+    '（' : ' (', '）': ') ',
+    '【' : '[', '】': ']',
+    '《' : '"', '》': '"',
     '……': '...', '——': ' - ',
 }
 
 
 def beautify_title(title: str):
-    title = title.replace('|', '-').replace('_', ' - ')
     for i, j in cn_to_en.items():
         title = title.replace(i, j)
-    title = ' '.join(reg1.findall(title)).lower()
-    title = ' '.join(reg3.findall(title))
-    title = re.sub(reg2, ' ', title).strip()
+    title = title.replace('|', '-').replace('_', ' - ').lower()
+    title = ' '.join(reg1.findall(title))
+    title = ' '.join(reg2.findall(title))
+    title = re.sub(reg3, ' ', title).strip()
     return title
 
 
 if __name__ == '__main__':
-    # ifile comes from: C:/Users/Likianta/AppData/Local/CentBrowser/User Data
-    # /Default/Bookmarks
-    main(r'../data/bookmarks.json', '../output/bookmarks.json')
-    export_excel(read_and_write.loads('../output/bookmarks.json'),
-                 '../output/bookmarks.xlsx')
+    resu = main(r'../data/bookmarks.json', '../output/bookmarks.json')
+    export_excel(resu, '../output/bookmarks.xlsx')
     
     lk.print_important_msg()
     lk.over()
