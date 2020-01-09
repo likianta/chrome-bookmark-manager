@@ -1,30 +1,27 @@
-from os.path import exists
-
 from bs4.element import Tag
-from lk_utils import read_and_write_basic
 from lk_utils.char_converter import PunctuationConverter
-from lk_utils.lk_logger import lk
 from lk_utils.name_formatter import prettify_name
-from lk_wrapper.bs4_wrapper import BeautifulSoup
+from lk_utils.toolbox import *
 
 
 def main():
     """
-    IN: bookmark.html: 输入一个浏览器导出的书签文件 (html 格式). 注意不能直接用浏览器导出的
-        书签文件, 因为该文件中存在大量未封口的 tag, 会导致 soup 解析失败. 为了解决此问题, 我
-        们先用浏览器打开该 html 文件, 浏览器会帮我们处理好 tag 的封口. 按 f12 复制 outer
-        html, 并保存到文件, 这个文件的路径才是本函数接受的输入.
-    OT: bookmark.json
-        bookmark_prettified.html
+    IN: data/bookmarks.html: 输入一个浏览器导出的书签文件 (html 格式). 注意不能
+        直接用浏览器导出的书签文件, 因为该文件中存在大量未封口的 tag, 会导致 sou
+        p 解析失败. 为了解决此问题, 我们先用浏览器打开该 html 文件, 浏览器会帮我
+        们处理好 tag 的封口. 按 f12 复制 outer html, 并保存到文件, 这个文件的路
+        径才是本函数接受的输入.
+    OT: data/bookmarks.json
+        output/new_bookmarks.html
     
     REF: data/sample.mhtml
     """
     if exists('../data/bookmark.json'):
-        data = read_and_write_basic.read_json('../data/bookmark.json')
+        data = read_and_write.read_json('../data/bookmark.json')
     else:
         soup = BeautifulSoup('../data/bookmark.html')
         data = indexing(soup.dl.dt, {})
-        read_and_write_basic.write_json(data, '../data/bookmark.json')
+        read_and_write.write_json(data, '../data/bookmark.json')
     
     # ------------------------------------------------
     
@@ -44,7 +41,7 @@ def main():
         </body>
     </html>""")
     
-    read_and_write_basic.write_file(
+    read_and_write.write_file(
         html_builder, '../output/bookmark_prettified.html'
     )
 
